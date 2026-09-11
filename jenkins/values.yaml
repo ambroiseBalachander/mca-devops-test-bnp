@@ -1,0 +1,68 @@
+---
+controller:
+  JCasC:
+    securityRealm: none
+    authorizationStrategy: unsecured
+    configScripts:
+      jenkins: |
+        jenkins:
+          disabledAdministrativeMonitors:
+            - "jenkins.diagnostics.SecurityIsOffMonitor"
+            - "jenkins.security.csp.impl.CspRecommendation"
+            - "hudson.diagnosis.ReverseProxySetupMonitor"
+          clouds:
+            - kubernetes:
+                name: "kubernetes"
+                serverUrl: "https://kubernetes.default"
+                namespace: "jenkins"
+                jenkinsUrl: "http://jenkins.jenkins.svc.cluster.local:8080"
+                jenkinsTunnel: "jenkins-agent.jenkins.svc.cluster.local:50000"
+                podLabels:
+                  - key: "jenkins/jenkins-jenkins-agent"
+                    value: "true"
+                templates:
+                  - name: "default"
+                    namespace: "jenkins"
+                    label: "jenkins-jenkins-agent"
+                    nodeUsageMode: NORMAL
+                    containers:
+                      - name: "jnlp"
+                        image: "jenkins/inbound-agent:3385.vf1123fb_515da_-1"
+                        workingDir: "/home/jenkins/agent"
+                        args: "^${computer.jnlpmac} ^${computer.name}"
+                        envVars:
+                          - envVar:
+                              key: "JENKINS_URL"
+                              value: "http://jenkins.jenkins.svc.cluster.local:8080/"
+                        resourceLimitCpu: "512m"
+                        resourceLimitMemory: "512Mi"
+                        resourceRequestCpu: "512m"
+                        resourceRequestMemory: "512Mi"
+                    podRetention: "never"
+                    serviceAccount: "default"
+                    slaveConnectTimeout: 100
+                    slaveConnectTimeoutStr: "100"
+                  - name: "buildah"
+                    namespace: "jenkins"
+                    label: "buildah"
+                    containers:
+                      - name: "buildah"
+                        image: "quay.io/buildah/stable:latest"
+                        workingDir: "/workspace"
+                        command: "sleep"
+                        args: "infinity"
+                        envVars:
+                          - envVar:
+                              key: "STORAGE_DRIVER"
+                              value: "vfs"
+                        # in case of restricted containers, uncomment the following lines
+                        #  - envVar:
+                        #      key: "BUILDAH_ISOLATION"
+                        #      value: "chroot"
+                        #privileged: true
+                    volumes:
+                      - emptyDirVolume:
+                          mountPath: "/var/lib/containers"
+  additionalPlugins:
+    - github:latest
+    - ansible:latest
