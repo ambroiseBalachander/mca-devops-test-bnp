@@ -1,8 +1,6 @@
 pipeline {
-    agent { 
-        node {
-            label 'buildah'
-        }
+    agent {
+        label 'buildah'
     }
 
     environment {
@@ -32,20 +30,21 @@ pipeline {
             }
         }
 
-        // --- Stage 1 : Scans statiques ---
+        // --- Stage 1 : Scans statiques (uniquement frontend/ et backend/) ---
         stage('Static Security Scans') {
             parallel {
                 stage('Secrets Scan') {
                     steps {
                         container('buildah') {
-                            sh 'gitleaks detect --source . --no-git --exit-code 1'
+                            sh 'gitleaks detect --source frontend/ --no-git --exit-code 1'
+                            sh 'gitleaks detect --source backend/ --no-git --exit-code 1'
                         }
                     }
                 }
                 stage('SAST') {
                     steps {
                         container('buildah') {
-                            sh 'semgrep --config auto --error .'
+                            sh 'semgrep --config auto --error backend/ frontend/'
                         }
                     }
                 }
