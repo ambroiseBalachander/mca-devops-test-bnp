@@ -1,0 +1,21 @@
+FROM quay.io/buildah/stable:latest
+
+# Installation des dépendances de base et Python/pip
+RUN dnf install -y curl tar gzip python3-pip git && \
+    dnf clean all
+
+# Installation de Gitleaks
+RUN GITLEAKS_VERSION=$(curl -s https://api.github.com/repos/gitleaks/gitleaks/releases/latest | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/') && \
+    curl -sSfL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" -o gitleaks.tar.gz && \
+    tar -xzf gitleaks.tar.gz gitleaks && \
+    mv gitleaks /usr/local/bin/ && \
+    rm gitleaks.tar.gz
+
+# Installation de Syft
+RUN curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
+
+# Installation de Grype
+RUN curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin
+
+# Installation de Semgrep
+RUN pip3 install semgrep --break-system-packages --quiet

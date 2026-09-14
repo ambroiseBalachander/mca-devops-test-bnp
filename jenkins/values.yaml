@@ -47,7 +47,7 @@ controller:
                     label: "buildah"
                     containers:
                       - name: "buildah"
-                        image: "quay.io/buildah/stable:latest"
+                        image: "ghcr.io/ambroisebalachander/custom-buildah-agent:latest"
                         workingDir: "/workspace"
                         command: "sleep"
                         args: "infinity"
