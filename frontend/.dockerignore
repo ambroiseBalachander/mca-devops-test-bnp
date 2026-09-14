@@ -1,0 +1,19 @@
+# Dépendances : réinstallées à l'intérieur du conteneur (npm ci),
+# les copier depuis l'hôte serait inutile et casserait potentiellement
+# le build (binaires natifs compilés pour ton OS, pas celui du conteneur).
+node_modules
+
+# Build précédent : sera régénéré par le Dockerfile lui-même,
+# pas besoin (et risque de confusion) de copier un ancien build.
+dist
+
+# Fichiers Git : inutiles à l'intérieur de l'image, alourdissent le contexte
+# envoyé au démon Docker/buildah à chaque build.
+.git
+.gitignore
+
+# Logs npm, fichiers d'environnement local, IDE
+npm-debug.log
+.vscode
+.idea
+*.md

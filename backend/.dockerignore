@@ -1,0 +1,14 @@
+# Build Maven précédent : sera régénéré à l'intérieur du conteneur,
+# pas besoin de copier un ancien build depuis l'hôte.
+target
+
+# Fichiers Git : inutiles à l'intérieur de l'image, alourdissent le contexte
+# envoyé au démon Docker/buildah à chaque build.
+.git
+.gitignore
+
+# Fichiers IDE / OS
+.vscode
+.idea
+*.md
+.DS_Store
