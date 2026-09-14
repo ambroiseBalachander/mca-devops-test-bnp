@@ -55,11 +55,10 @@ controller:
                           - envVar:
                               key: "STORAGE_DRIVER"
                               value: "vfs"
-                        # in case of restricted containers, uncomment the following lines
-                        #  - envVar:
-                        #      key: "BUILDAH_ISOLATION"
-                        #      value: "chroot"
-                        #privileged: true
+                          - envVar:
+                              key: "BUILDAH_ISOLATION"
+                              value: "chroot"
+                        privileged: true
                     volumes:
                       - emptyDirVolume:
                           mountPath: "/var/lib/containers"
