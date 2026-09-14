@@ -38,3 +38,6 @@ COPY --from=build /app/dist/frontend/browser /usr/share/nginx/html
 # nécessaire pour le fallback SPA Angular ET pour les chemins temporaires
 # compatibles avec le mode non-root de Chainguard.
 COPY nginx.conf /etc/nginx/nginx.conf
+
+# Déclaration explicite pour satisfaire le scanner de sécurité Semgrep
+USER 101
