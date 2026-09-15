@@ -27,7 +27,7 @@ RUN npx ng build --configuration=production
 FROM cgr.dev/chainguard/nginx:latest
 
 # Documente le port utilisé (informatif, n'ouvre rien en soi).
-EXPOSE 8080
+EXPOSE 80
 
 # On récupère UNIQUEMENT les fichiers statiques compilés depuis l'étape
 # "build" ci-dessus. Node, npm, le code source TypeScript : tout est jeté,
