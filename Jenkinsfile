@@ -12,25 +12,16 @@ pipeline {
 
     stages {
 
-        // --- Stage 0 : Outils de sécurité & Authentification GHCR ---
-        stage('Install Security Tools & Login') {
+        // --- Stage 0 : Connexion GHCR uniquement (outils déjà intégrés dans l'image agent) ---
+        stage('Login GHCR') {
             steps {
                 container('buildah') {
-                    sh '''
-                        # Installation des outils de sécurité
-                        command -v gitleaks >/dev/null || curl -sSfL https://raw.githubusercontent.com/gitleaks/gitleaks/master/install.sh | sh -s -- -b /usr/local/bin
-                        command -v syft >/dev/null || curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
-                        command -v grype >/dev/null || curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin
-                        command -v semgrep >/dev/null || pip install semgrep --break-system-packages --quiet
-
-                        # Connexion sécurisée à GHCR
-                        echo "$GHCR_CREDS_PSW" | buildah login ghcr.io -u "$GHCR_CREDS_USR" --password-stdin
-                    '''
+                    sh 'echo "$GHCR_CREDS_PSW" | buildah login ghcr.io -u "$GHCR_CREDS_USR" --password-stdin'
                 }
             }
         }
 
-        // --- Stage 1 : Scans statiques (uniquement frontend/ et backend/) ---
+        // --- Stage 1 : Scans statiques ---
         stage('Static Security Scans') {
             parallel {
                 stage('Secrets Scan') {
@@ -51,7 +42,7 @@ pipeline {
             }
         }
 
-        // --- Stage 2 : Build, SBOM, SCA & Push en parallèle ---
+        // --- Stage 2 : Build, SBOM, SCA & Push ---
         stage('Build & Image Scans') {
             parallel {
                 
@@ -60,9 +51,11 @@ pipeline {
                     steps {
                         container('buildah') {
                             sh 'buildah build --tag $BACKEND_IMAGE ./backend'
-                            sh "syft containers-storage:${BACKEND_IMAGE} -o cyclonedx-json > backend-sbom.json"
+                            sh 'buildah push $BACKEND_IMAGE oci-archive:backend-image.tar'
+                            sh 'syft oci-archive:backend-image.tar -o cyclonedx-json > backend-sbom.json'
                             sh 'grype sbom:./backend-sbom.json --fail-on critical'
                             sh 'buildah push $BACKEND_IMAGE docker://$BACKEND_IMAGE'
+                            sh 'rm -f backend-image.tar'
                         }
                     }
                 }
@@ -72,9 +65,11 @@ pipeline {
                     steps {
                         container('buildah') {
                             sh 'buildah build --tag $FRONTEND_IMAGE ./frontend'
-                            sh "syft containers-storage:${FRONTEND_IMAGE} -o cyclonedx-json > frontend-sbom.json"
+                            sh 'buildah push $FRONTEND_IMAGE oci-archive:frontend-image.tar'
+                            sh 'syft oci-archive:frontend-image.tar -o cyclonedx-json > frontend-sbom.json'
                             sh 'grype sbom:./frontend-sbom.json --fail-on critical'
                             sh 'buildah push $FRONTEND_IMAGE docker://$FRONTEND_IMAGE'
+                            sh 'rm -f frontend-image.tar'
                         }
                     }
                 }

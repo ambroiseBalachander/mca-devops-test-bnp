@@ -51,6 +51,10 @@ controller:
                         workingDir: "/workspace"
                         command: "sleep"
                         args: "infinity"
+                        resourceLimitCpu: "2000m"
+                        resourceLimitMemory: "2Gi"
+                        resourceRequestCpu: "500m"
+                        resourceRequestMemory: "1Gi"
                         envVars:
                           - envVar:
                               key: "STORAGE_DRIVER"
@@ -62,6 +66,8 @@ controller:
                     volumes:
                       - emptyDirVolume:
                           mountPath: "/var/lib/containers"
+                      - emptyDirVolume:
+                          mountPath: "/home/build/.m2"
   additionalPlugins:
     - github:latest
     - ansible:latest
