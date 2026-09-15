@@ -76,6 +76,24 @@ pipeline {
 
             }
         }
+
+        stage('Update Helm Chart') {
+            steps {
+                container('buildah') {
+                    sh '''
+                        git config user.name "Jenkins CI Bot"
+                        git config user.email "jenkins@ci.local"
+                        
+                        # Mettre à jour le tag dans helm-charts/values.yaml avec le numéro de build
+                        sed -i "s|tag:.*|tag: \\"${BUILD_NUMBER}\\"|" helm-charts/values.yaml
+                        
+                        git add helm-charts/values.yaml
+                        git commit -m "ci: update image tags to build ${BUILD_NUMBER}"
+                        git push origin main
+                    '''
+                }
+            }
+        }
     }
 
     post {
