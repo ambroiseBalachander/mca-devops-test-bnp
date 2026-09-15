@@ -60,7 +60,7 @@ pipeline {
                     steps {
                         container('buildah') {
                             sh 'buildah build --tag $BACKEND_IMAGE ./backend'
-                            sh 'syft $BACKEND_IMAGE -o cyclonedx-json > backend-sbom.json'
+                            sh "syft containers-storage:${BACKEND_IMAGE} -o cyclonedx-json > backend-sbom.json"
                             sh 'grype sbom:./backend-sbom.json --fail-on critical'
                             sh 'buildah push $BACKEND_IMAGE docker://$BACKEND_IMAGE'
                         }
@@ -72,7 +72,7 @@ pipeline {
                     steps {
                         container('buildah') {
                             sh 'buildah build --tag $FRONTEND_IMAGE ./frontend'
-                            sh 'syft $FRONTEND_IMAGE -o cyclonedx-json > frontend-sbom.json'
+                            sh "syft containers-storage:${FRONTEND_IMAGE} -o cyclonedx-json > frontend-sbom.json"
                             sh 'grype sbom:./frontend-sbom.json --fail-on critical'
                             sh 'buildah push $FRONTEND_IMAGE docker://$FRONTEND_IMAGE'
                         }

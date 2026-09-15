@@ -19,7 +19,7 @@ COPY . .
 
 # Build de production Angular : optimise, minifie, "tree-shake" le code.
 # Génère les fichiers statiques finaux dans dist/frontend/browser/.
-RUN npm run build --configuration=production
+RUN npx ng build --configuration=production
 
 # --- Étape 2 : image finale, minimale, pour servir les fichiers statiques ---
 # Chainguard nginx : serveur web minimal, sans shell, sans package manager,
