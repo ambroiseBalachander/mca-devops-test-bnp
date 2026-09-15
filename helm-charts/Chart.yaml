@@ -1,0 +1,6 @@
+apiVersion: v2
+name: mca-app
+description: Chart Helm pour l'application MCA 
+type: application
+version: 0.1.0
+appVersion: "1.0.0"

@@ -1,0 +1,62 @@
+global:
+  namespace: mca-app
+
+# --- Configuration Gateway / HTTPRoute (Traefik) ---
+gateway:
+  name: traefik-gateway
+  namespace: traefik-system
+
+# Un seul domaine externe : le Frontend
+domain:
+  frontend: app.local
+
+# --- Configuration Backend Spring Boot ---
+backend:
+  replicaCount: 2
+  image:
+    repository: ghcr.io/ambroisebalachander/mca-backend-bnp
+    tag: latest
+    pullPolicy: IfNotPresent
+  containerPort: 8080
+  service:
+    type: ClusterIP
+    port: 8080
+
+  # Ressources CPU / RAM pour Spring Boot
+  resources:
+    requests:
+      cpu: "250m"
+      memory: "512Mi"
+    limits:
+      cpu: "1000m"
+      memory: "1Gi"
+
+  # Connexion à PostgreSQL (CNPG)
+  database:
+    # Nom du service Read-Write créé automatiquement par CloudNativePG
+    host: postgres-pooler.mca-app.svc.cluster.local
+    port: 5432
+    name: myapplication
+    # Nom du secret généré par CNPG
+    secretName: postgres-app-credentials
+
+# --- Configuration Frontend ---
+frontend:
+  replicaCount: 2
+  image:
+    repository: ghcr.io/ambroisebalachander/mca-frontend-bnp
+    tag: latest
+    pullPolicy: IfNotPresent
+  containerPort: 80
+  service:
+    type: ClusterIP
+    port: 80
+
+  # Ressources CPU / RAM pour Nginx / Frontend
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+    limits:
+      cpu: "250m"
+      memory: "256Mi"
