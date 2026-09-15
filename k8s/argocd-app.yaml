@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: mca-app
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: 'https://github.com/ambroiseBalachander/mca-devops-test-bnp.git'
+    targetRevision: main
+    path: helm-charts
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: mca-app
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ApplyOutOfSyncOnly=true
