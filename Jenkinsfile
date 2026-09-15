@@ -5,8 +5,8 @@ pipeline {
 
     environment {
         REGISTRY = 'ghcr.io/ambroisebalachander'
-        BACKEND_IMAGE = "${REGISTRY}/mca-backend:${BUILD_NUMBER}"
-        FRONTEND_IMAGE = "${REGISTRY}/mca-frontend:${BUILD_NUMBER}"
+        BACKEND_IMAGE = "${REGISTRY}/mca-backend-bnp:${BUILD_NUMBER}"
+        FRONTEND_IMAGE = "${REGISTRY}/mca-frontend-bnp:${BUILD_NUMBER}"
         GHCR_CREDS = credentials('ghcr-credentials')
     }
 
