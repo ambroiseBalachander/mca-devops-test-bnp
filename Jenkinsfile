@@ -80,17 +80,27 @@ pipeline {
         stage('Update Helm Chart') {
             steps {
                 container('buildah') {
-                    sh '''
-                        git config user.name "Jenkins CI Bot"
-                        git config user.email "jenkins@ci.local"
-                        
-                        # Mettre à jour le tag dans helm-charts/values.yaml avec le numéro de build
-                        sed -i "s|tag:.*|tag: \\"${BUILD_NUMBER}\\"|" helm-charts/values.yaml
-                        
-                        git add helm-charts/values.yaml
-                        git commit -m "ci: update image tags to build ${BUILD_NUMBER}"
-                        git push origin main
-                    '''
+                    script {
+                        // Utilisation des identifiants GHCR (ou un token Git dédié) pour cloner et pousser
+                        withCredentials([usernamePassword(credentialsId: 'ghcr-credentials', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_PASS')]) {
+                            sh '''
+                                git clone https://${GIT_USER}:${GIT_PASS}@github.com/ambroiseBalachander/mca-devops-test-bnp.git repo-temp
+                                cd repo-temp
+                                
+                                git config user.name "Jenkins CI Bot"
+                                git config user.email "jenkins@ci.local"
+                                
+                                sed -i "s|tag:.*|tag: \\"${BUILD_NUMBER}\\"|" helm-charts/values.yaml
+                                
+                                git add helm-charts/values.yaml
+                                git commit -m "ci: update image tags to build ${BUILD_NUMBER}"
+                                git push origin main
+                                
+                                cd ..
+                                rm -rf repo-temp
+                            '''
+                        }
+                    }
                 }
             }
         }
