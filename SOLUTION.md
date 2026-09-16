@@ -176,3 +176,4 @@ kubectl get pods -n mca-app
 - **StorageClass** : Talos ne fournit aucun provisionneur de stockage par défaut ; `local-path-provisioner` a été installé et défini comme `StorageClass` par défaut.
 - **Registre privé GHCR** : les manifests de déploiement référencent `imagePullSecrets: github-registry-secret` pour authentifier le pull des images privées.
 - **Gateway API** plutôt qu'Ingress classique : le contrôleur `ingress-nginx` étant en fin de maintenance (retiré depuis mars 2026), Traefik est configuré en mode Gateway API (`Gateway`/`HTTPRoute`), l'approche recommandée par la communauté Kubernetes.
+- **Utilisation de GeminiAI** pour les configurations yaml et documentation.
